@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HW9_10
 {
@@ -6,7 +7,10 @@ namespace HW9_10
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            List<Question> questions = new List<Question>();
+
+
+
         }
     }
 }
