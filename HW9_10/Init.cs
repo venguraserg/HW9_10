@@ -14,10 +14,9 @@ namespace HW9_10
         {
             string path = "token.txt";
             var token = File.ReadAllText(path);
-            var sss = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Lossso");
-            var ssss = Path.Combine(sss, string.Format("{0}_{1:dd.MM.yyy}.log", AppDomain.CurrentDomain.FriendlyName, DateTime.Now));
-            Console.WriteLine(sss);
-            Console.WriteLine(ssss);
+            string repoDir = Path.Combine(Directory.GetCurrentDirectory(), "Repository");
+            if (!Directory.Exists(repoDir)) { Directory.CreateDirectory(repoDir); }
+
             return new TelegramBotClient(token);
         }
     }
