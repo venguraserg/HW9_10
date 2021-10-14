@@ -11,6 +11,7 @@ namespace HW9_10
     {
         public long UserId { get; set; }
         public string RepoPath { get; set; }
+        public string CurrentFolder { get; set; }
         public List<string> FolderList { get; set; }
 
         public User() 
@@ -20,6 +21,7 @@ namespace HW9_10
         {
             UserId = userId;
             RepoPath = Path.Combine(Directory.GetCurrentDirectory(), "Repository", this.UserId.ToString());
+            CurrentFolder = string.Empty;
             FolderList = GetFolderName();
         }
 

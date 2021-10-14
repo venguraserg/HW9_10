@@ -19,8 +19,7 @@ namespace HW9_10
         [Obsolete]
         static void Main(string[] args)
         {
-           // TestMethod();
-
+           
             users = new List<User>();
             bot = Init.Initialization(ref users);
             bot.OnMessage += Bot_OnMessage;
@@ -28,16 +27,7 @@ namespace HW9_10
             Console.ReadKey();
         }
 
-        private static void TestMethod()
-        {
-            var temp = Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), "Repository"));
-            foreach (var item in temp)
-            {
-                Console.WriteLine(new DirectoryInfo(item).Name);
-                
-            }
-            
-        }
+        
 
 
         /// <summary>
@@ -66,12 +56,16 @@ namespace HW9_10
                                               "/help   - помощь \n" +
                                               "/veiw_reposytory - получить список папок хранилища";
                                 bot.SendTextMessageAsync(e.Message.Chat.Id, text);
+                                user.CurrentFolder = string.Empty;
+                                
+                               
                             }
                             break;
 
                         case "/start":
                             {
                                 bot.SendTextMessageAsync(e.Message.Chat.Id, "/help - для получения списка команд");
+                                user.CurrentFolder = string.Empty;
                             }
                             break;
                         case "/veiw_reposytory":
@@ -79,29 +73,68 @@ namespace HW9_10
                                 string folderListForMenu = string.Empty;
                                 foreach (var item in user.FolderList)
                                 {
-                                    folderListForMenu = folderListForMenu +"/" + item + "\n";
+                                    folderListForMenu = folderListForMenu + "/" + item + "\n";
                                     
                                 }
                                 
                                 bot.SendTextMessageAsync(e.Message.Chat.Id, folderListForMenu);
+                                user.CurrentFolder = string.Empty;
                             }
                             break;
                     }
+                    
 
                     var folderRequest = e.Message.Text.TrimStart('/');
                     var userFolder = user.FolderList.SingleOrDefault(i => i == e.Message.Text.TrimStart('/'));
-                    if (e.Message.Text.TrimStart('/') == user.FolderList.SingleOrDefault(i=>i == e.Message.Text.TrimStart('/')))
+                    
+                    if (folderRequest == userFolder)
                     {
+                        user.CurrentFolder = folderRequest;
+                        UpdapeListUsers(user);
                         var fileList = Directory.GetFiles(Path.Combine(user.RepoPath, e.Message.Text.TrimStart('/')));
-                        var filename = new FileInfo(fileList[0]).Name;
-                        
-                        bot.SendTextMessageAsync(e.Message.Chat.Id, "ОК");
+                        var fileListForMenu = $"Список файлов в директории {folderRequest}\n";
+                        for (int i = 0; i < fileList.Length; i++)
+                        {
+                            fileListForMenu = fileListForMenu +$"{i+1}."+ new FileInfo(fileList[i]).Name + "\n";
+                        }
+
+                        bot.SendTextMessageAsync(e.Message.Chat.Id, fileListForMenu);
                     }
+
+                    //if (user.CurrentFolder != string.Empty)
+                    //{
+                    //    var correctParse = int.TryParse(e.Message.Text, out int numberFile);
+                    //    var fileList = Directory.GetFiles(Path.Combine(user.RepoPath, e.Message.Text.TrimStart('/')));
+                    //    if (correctParse && (numberFile >0 && numberFile<= fileList.Length+1))
+                    //    {
+                    //        Console.WriteLine($"передача файла {Path.Combine(Directory.GetCurrentDirectory(), "Repository",user.CurrentFolder, fileList[numberFile-1])}") ;
+                    //    }
+                    //    else
+                    //    {
+                    //        Console.WriteLine("not correct input");
+                    //    }
+                    //}
+
+
 
                 }
                 else
                 {
-                    bot.SendTextMessageAsync(e.Message.Chat.Id, "не верный ввод. . .");
+                    if (user.CurrentFolder != string.Empty)
+                    {
+                        var correctParse = int.TryParse(e.Message.Text, out int numberFile);
+                        var fileList = Directory.GetFiles(Path.Combine(user.RepoPath, e.Message.Text.TrimStart('/')));
+                        if (correctParse && (numberFile > 0 && numberFile <= fileList.Length + 1))
+                        {
+                            Console.WriteLine($"передача файла {Path.Combine(Directory.GetCurrentDirectory(), "Repository", user.CurrentFolder, fileList[numberFile - 1])}");
+                        }
+                        else
+                        {
+                            Console.WriteLine("not correct input");
+                            bot.SendTextMessageAsync(e.Message.Chat.Id, "не верный ввод. . .");
+                        }
+                    }
+                    
                 }
             }
             else
@@ -124,44 +157,38 @@ namespace HW9_10
 
                         }
                         break;
-                    case MessageType.Photo:
-                        {
-                            Console.WriteLine($"Получено фото от пользователя {e.Message.Chat.Username}");
-                            //bot.SendTextMessageAsync(e.Message.Chat.Id, $"Принято фото");
-                            //DownLoad(e.Message.Photo.FileId, e.Message.Photo.FileName, GetDirByFileType(e.Message.Photo.MimeType, e.Message.Chat.Id));
-
-                        }
-                        break;
-                    case MessageType.Video:
-                        {
-                            Console.WriteLine($"Получено Видео от пользователя {e.Message.Chat.Username}");
-                            
-                        }
-                        break;
-                    case MessageType.Voice:
-                        {
-                            Console.WriteLine($"Получено голосовое от пользователя {e.Message.Chat.Username}");
-                        }
-                        break;
-                    case MessageType.Unknown:
-                        {
-                            Console.WriteLine($"Получено непонятно что от пользователя {e.Message.Chat.Username}");
-                        }
-                        break;
-
-
-
+                    
 
                     default:
 
-                        bot.SendTextMessageAsync(e.Message.Chat.Id, $"не верный ввод. . . {e.Message.Type.ToString()}");
+                        bot.SendTextMessageAsync(e.Message.Chat.Id, $"не верный ввод, тип данных {e.Message.Type.ToString()} не поддерживается, отправьте файл или команду. . .");
                         break;
                 }
 
             }
 
         }
+        /// <summary>
+        /// Обновление листа пользователей
+        /// </summary>
+        /// <param name="user"></param>
+        private static void UpdapeListUsers(User user)
+        {
+            for (int i = 0; i < users.Count; i++)
+            {
+                if(users[i].UserId == user.UserId)
+                {
+                    users[i] = user;
+                    return;
+                }
+            }
+        }
 
+        /// <summary>
+        /// Получение пользователя по Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private static User GetUser(long id)
         {
             User tempUser = new User();
@@ -172,6 +199,11 @@ namespace HW9_10
             }
             else
             {
+                for (int i = 0; i < users.Count; i++)
+                {
+                    if (users[i].UserId == id) users[i] = new User(id);
+                }
+                
                 tempUser = users.Single(i => i.UserId == id);
             }
             return tempUser;
@@ -216,10 +248,10 @@ namespace HW9_10
             //fs.Dispose();
             var tempPath = Path.Combine(filePath, fileName);
                 using (FileStream fss = new FileStream(tempPath, FileMode.Create))
-            {
-                await bot.DownloadFileAsync(file.FilePath, fss);
+                {
+                    await bot.DownloadFileAsync(file.FilePath, fss);
 
-            };
+                };
         }
         /// <summary>
         /// Метод определения пути сохраняемого файла по типу
