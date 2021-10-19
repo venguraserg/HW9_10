@@ -201,7 +201,7 @@ namespace HW9_10
             {
                 for (int i = 0; i < users.Count; i++)
                 {
-                    if (users[i].UserId == id) users[i] = new User(id);
+                    if (users[i].UserId == id) users[i] = new User(id, users[i].CurrentFolder);
                 }
                 
                 tempUser = users.Single(i => i.UserId == id);

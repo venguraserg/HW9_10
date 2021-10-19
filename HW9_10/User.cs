@@ -25,6 +25,14 @@ namespace HW9_10
             FolderList = GetFolderName();
         }
 
+        public User(long userId, string currentFolder)
+        {
+            UserId = userId;
+            RepoPath = Path.Combine(Directory.GetCurrentDirectory(), "Repository", this.UserId.ToString());
+            CurrentFolder = currentFolder;
+            FolderList = GetFolderName();
+        }
+
         private List<string> GetFolderName()
         {
             List<string> folders = new List<string>();
