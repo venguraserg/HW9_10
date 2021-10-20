@@ -8,6 +8,17 @@ using Telegram.Bot.Types.Enums;
 using Serilog;
 using System.Linq;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types.ReplyMarkups;
+using System.Threading.Tasks;
+using Telegram.Bot.Types.InputFiles;
+
+/// <summary>
+/// 
+/// Телеграмм бот для удаленного хранения ваших файлов
+/// вы отправляете файл, бот по типу раскладывает по папкам, в зависимости от MineType
+/// вы можете просмотреть свой репозиторий и выбрать файл для обратной загрузки
+/// 
+/// </summary>
 
 namespace HW9_10
 {
@@ -38,14 +49,16 @@ namespace HW9_10
         [Obsolete]
         private static void Bot_OnMessage(object sender, Telegram.Bot.Args.MessageEventArgs e)
         {
+            //инициализируем текущего пользователя
             User user = GetUser(e.Message.Chat.Id);
-
+            //определяем тип сообщения
             if (e.Message.Type == MessageType.Text)
-            {
+            {   //если с "/" в начале определяем как команду
                 if (e.Message.Text.Substring(0, 1) == "/")
                 {
                     switch (e.Message.Text)
                     {
+                        //Команда ХЕЛП
                         case "/help":
                             {
                                 string text = "Бот ХРАНИТЕЛЬ\n" +
@@ -55,22 +68,25 @@ namespace HW9_10
                                               "/start  - начало работы \n" +
                                               "/help   - помощь \n" +
                                               "/veiw_reposytory - получить список папок хранилища";
+                                
                                 bot.SendTextMessageAsync(e.Message.Chat.Id, text);
                                 user.CurrentFolder = string.Empty;
                                 
                                
                             }
                             break;
-
+                        // Команда старт
                         case "/start":
                             {
                                 bot.SendTextMessageAsync(e.Message.Chat.Id, "/help - для получения списка команд");
                                 user.CurrentFolder = string.Empty;
                             }
                             break;
+                        // просмотр хранилища
                         case "/veiw_reposytory":
                             {
                                 string folderListForMenu = string.Empty;
+                                //формируем перечень папок из папки пользователя, добавляем / в начало чтобы проходило как команда
                                 foreach (var item in user.FolderList)
                                 {
                                     folderListForMenu = folderListForMenu + "/" + item + "\n";
@@ -83,16 +99,17 @@ namespace HW9_10
                             break;
                     }
                     
-
+                    //если в свич чтото не попало, значит это либо имя папки, либо чтото непонятное...
+                    //сдесь мы ловим имя нужнй папки
                     var folderRequest = e.Message.Text.TrimStart('/');
                     var userFolder = user.FolderList.SingleOrDefault(i => i == e.Message.Text.TrimStart('/'));
-
+                    //если есть такая папка у юзера - выведем список файлов этой папки
                     if (folderRequest == userFolder)
                     {
                         user.CurrentFolder = folderRequest;
                         UpdapeListUsers(user);
                         var fileList = Directory.GetFiles(Path.Combine(user.RepoPath, e.Message.Text.TrimStart('/')));
-                        var fileListForMenu = $"Список файлов в директории {folderRequest}.Выберите номер файла\n";
+                        var fileListForMenu = $"Список файлов в директории {folderRequest}.\nВыберите номер файла\n";
                         for (int i = 0; i < fileList.Length; i++)
                         {
                             fileListForMenu = fileListForMenu + $"{i + 1}." + new FileInfo(fileList[i]).Name + "\n";
@@ -105,18 +122,22 @@ namespace HW9_10
 
                 }
                 else
-                {
+                {   
+                    //выбираем файл для выгрузки 
                     if (user.CurrentFolder != string.Empty)
                     {
                         var correctParse = int.TryParse(e.Message.Text, out int numberFile);
                         var fileList = Directory.GetFiles(Path.Combine(user.RepoPath,user.CurrentFolder));
                         if (correctParse && (numberFile > 0 && numberFile <= fileList.Length))
                         {
-                            Console.WriteLine($"передача файла {Path.Combine(Directory.GetCurrentDirectory(), "Repository", user.CurrentFolder, fileList[numberFile - 1])}");
+                            string tempPath = Path.Combine(Directory.GetCurrentDirectory(), "Repository", user.CurrentFolder, fileList[numberFile - 1]);
+                            string tempFileName = new FileInfo(fileList[numberFile - 1]).Name;
+                            Console.WriteLine($"передача файла {tempPath}");
+                            _ = UploadFileAsync(e.Message.Chat.Id, tempPath, tempFileName);
                             user.CurrentFolder = string.Empty;
                         }
                         else
-                        {
+                        { 
                             Console.WriteLine("not correct input");
                             bot.SendTextMessageAsync(e.Message.Chat.Id, "не верный ввод. . .");
                             user.CurrentFolder = string.Empty;
@@ -127,6 +148,7 @@ namespace HW9_10
             }
             else
             {
+                // если не ТЕКСТ то загружаем в определенную папку
                 switch (e.Message.Type)
                 {
                     case MessageType.Document:
@@ -148,7 +170,7 @@ namespace HW9_10
                     
 
                     default:
-
+                        
                         bot.SendTextMessageAsync(e.Message.Chat.Id, $"не верный ввод, тип данных {e.Message.Type.ToString()} не поддерживается, отправьте файл или команду. . .");
                         break;
                 }
@@ -156,6 +178,26 @@ namespace HW9_10
             }
 
         }
+        /// <summary>
+        /// Асинхронный медод выгрузки файла из хранилища
+        /// </summary>
+        /// <param name="chatId"></param>
+        /// <param name="path"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        private static async Task UploadFileAsync(long chatId, string path, string fileName)
+        {
+            using (var stream = File.OpenRead(path))
+            {
+                InputOnlineFile iof = new InputOnlineFile(stream); 
+                iof.FileName = fileName;
+                await bot.SendDocumentAsync(chatId, iof);
+            }
+        }
+
+
+
+
         /// <summary>
         /// Обновление листа пользователей
         /// </summary>
@@ -226,20 +268,14 @@ namespace HW9_10
             if (!Directory.Exists(filePath))
             {
                 Directory.CreateDirectory(filePath);
-             }
+            }
 
-
-            //FileStream fs = new FileStream("_" + fileName, FileMode.Create);
-            //await bot.DownloadFileAsync(file.FilePath, fs);
-            //fs.Close();
-
-            //fs.Dispose();
             var tempPath = Path.Combine(filePath, fileName);
-                using (FileStream fss = new FileStream(tempPath, FileMode.Create))
-                {
-                    await bot.DownloadFileAsync(file.FilePath, fss);
+            using (FileStream fss = new FileStream(tempPath, FileMode.Create))
+            {
+                await bot.DownloadFileAsync(file.FilePath, fss);
 
-                };
+            };
         }
         /// <summary>
         /// Метод определения пути сохраняемого файла по типу
