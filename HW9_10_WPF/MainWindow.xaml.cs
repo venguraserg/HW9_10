@@ -34,7 +34,7 @@ namespace HW9_10_WPF
         private void Bot_OnMessage(object sender, Telegram.Bot.Args.MessageEventArgs e)
         {
             msg.Id = e.Message.Chat.Id;
-            msg.Text = $"Кузьмич не дрыщи усе будзе добра {e.Message.Chat.Id} {e.Message.Text}";
+            msg.Text = $" {e.Message.Chat.Id} {e.Message.Text}";
             //
             //this.Title = e.Message.Text;
 
