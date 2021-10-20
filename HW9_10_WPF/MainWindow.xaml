@@ -5,10 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HW9_10_WPF"
         mc:Ignorable="d"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <TextBox x:Name="TB_1" HorizontalAlignment="Left" Height="46" Margin="100,152,0,0" Text="TextBox" TextWrapping="Wrap" VerticalAlignment="Top" Width="226"/>
-        <Button x:Name="Btn_1" Content="Button" HorizontalAlignment="Center" Margin="0,160,0,0" VerticalAlignment="Top" Click="Btn_1_Click"/>
-        
+       
     </Grid>
 </Window>

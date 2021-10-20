@@ -86,35 +86,21 @@ namespace HW9_10
 
                     var folderRequest = e.Message.Text.TrimStart('/');
                     var userFolder = user.FolderList.SingleOrDefault(i => i == e.Message.Text.TrimStart('/'));
-                    
+
                     if (folderRequest == userFolder)
                     {
                         user.CurrentFolder = folderRequest;
                         UpdapeListUsers(user);
                         var fileList = Directory.GetFiles(Path.Combine(user.RepoPath, e.Message.Text.TrimStart('/')));
-                        var fileListForMenu = $"Список файлов в директории {folderRequest}\n";
+                        var fileListForMenu = $"Список файлов в директории {folderRequest}.Выберите номер файла\n";
                         for (int i = 0; i < fileList.Length; i++)
                         {
-                            fileListForMenu = fileListForMenu +$"{i+1}."+ new FileInfo(fileList[i]).Name + "\n";
+                            fileListForMenu = fileListForMenu + $"{i + 1}." + new FileInfo(fileList[i]).Name + "\n";
                         }
 
                         bot.SendTextMessageAsync(e.Message.Chat.Id, fileListForMenu);
                     }
-
-                    //if (user.CurrentFolder != string.Empty)
-                    //{
-                    //    var correctParse = int.TryParse(e.Message.Text, out int numberFile);
-                    //    var fileList = Directory.GetFiles(Path.Combine(user.RepoPath, e.Message.Text.TrimStart('/')));
-                    //    if (correctParse && (numberFile >0 && numberFile<= fileList.Length+1))
-                    //    {
-                    //        Console.WriteLine($"передача файла {Path.Combine(Directory.GetCurrentDirectory(), "Repository",user.CurrentFolder, fileList[numberFile-1])}") ;
-                    //    }
-                    //    else
-                    //    {
-                    //        Console.WriteLine("not correct input");
-                    //    }
-                    //}
-
+                    
 
 
                 }
@@ -123,15 +109,17 @@ namespace HW9_10
                     if (user.CurrentFolder != string.Empty)
                     {
                         var correctParse = int.TryParse(e.Message.Text, out int numberFile);
-                        var fileList = Directory.GetFiles(Path.Combine(user.RepoPath, e.Message.Text.TrimStart('/')));
-                        if (correctParse && (numberFile > 0 && numberFile <= fileList.Length + 1))
+                        var fileList = Directory.GetFiles(Path.Combine(user.RepoPath,user.CurrentFolder));
+                        if (correctParse && (numberFile > 0 && numberFile <= fileList.Length))
                         {
                             Console.WriteLine($"передача файла {Path.Combine(Directory.GetCurrentDirectory(), "Repository", user.CurrentFolder, fileList[numberFile - 1])}");
+                            user.CurrentFolder = string.Empty;
                         }
                         else
                         {
                             Console.WriteLine("not correct input");
                             bot.SendTextMessageAsync(e.Message.Chat.Id, "не верный ввод. . .");
+                            user.CurrentFolder = string.Empty;
                         }
                     }
                     
