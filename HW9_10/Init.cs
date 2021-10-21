@@ -10,14 +10,9 @@ namespace HW9_10
 {
     public static class Init
     {
-        public static TelegramBotClient Initialization(ref List<User> users)
+        public static TelegramBotClient Initialization(ref List<User> users, string token)
         {
-            string path = "token.txt";
-            if (!File.Exists(path)) 
-            { 
-                File.Create(path); 
-            }
-            var token = File.ReadAllText(path);
+            
             string repoDir = Path.Combine(Directory.GetCurrentDirectory(), "Repository");
             if (!Directory.Exists(repoDir)) 
             { 

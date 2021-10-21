@@ -32,10 +32,20 @@ namespace HW9_10
         {
            
             users = new List<User>();
-            bot = Init.Initialization(ref users);
+            bot = Init.Initialization(ref users, GetToken());
             bot.OnMessage += Bot_OnMessage;
             bot.StartReceiving();
             Console.ReadKey();
+        }
+
+        private static string GetToken()
+        {
+            string path = "token.txt";
+            if (!File.Exists(path))
+            {
+                File.Create(path);
+            }
+           return File.ReadAllText(path);
         }
 
         

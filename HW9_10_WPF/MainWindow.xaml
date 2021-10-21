@@ -6,6 +6,43 @@
         xmlns:local="clr-namespace:HW9_10_WPF"
         mc:Ignorable="d"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid/>
+        Title="Хранитель" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="2*"/>
+
+        </Grid.RowDefinitions>
+        <Border Background="#d1cdcd" Grid.RowSpan="3" Margin="10" CornerRadius="10">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" Color="#FF7A4BD1"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock Text="Message" HorizontalAlignment="Center" FontWeight="Bold"/>
+                <ListView x:Name="LV_Message" Margin="2">
+
+                </ListView>
+            </StackPanel>
+        </Border>
+        <Border Grid.Column="1" Grid.Row="0" Background="#d1cdcd" CornerRadius="10" Margin="10">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" Color="#FF7A4BD1"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock Text="Users" HorizontalAlignment="Center" FontWeight="Bold"/>
+                <ListView x:Name="LV_Users" Margin="2">
+
+                </ListView>
+            </StackPanel>
+        </Border>
+        <TextBox x:Name="TB_Token" materialDesign:HintAssist.Hint="token" Grid.Column="1" Grid.Row="1" Margin="10 1" Style="{StaticResource MaterialDesignTextBox}" Cursor="IBeam" />
+        <Button x:Name="BTN_ChangeStatusBot" Grid.Column="1" Grid.Row="2" Margin="10" Content="START BOT" Style="{StaticResource MaterialDesignFlatAccentBgButton}" Cursor="Hand" Click="Button_Click"/>
+
+    </Grid>
 </Window>
