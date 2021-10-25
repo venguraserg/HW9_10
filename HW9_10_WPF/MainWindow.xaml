@@ -37,7 +37,13 @@
             <StackPanel>
                 <TextBlock Text="Users" HorizontalAlignment="Center" FontWeight="Bold"/>
                 <ListView x:Name="LV_Users" Margin="2">
-
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <WrapPanel>
+                                <TextBlock Text="{Binding UserId}"/>
+                            </WrapPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
                 </ListView>
             </StackPanel>
         </Border>

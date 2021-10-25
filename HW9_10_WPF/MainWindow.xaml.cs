@@ -18,6 +18,7 @@ using HW9_10;
 using System.IO;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
+using System.Collections.ObjectModel;
 
 namespace HW9_10_WPF
 {
@@ -38,8 +39,16 @@ namespace HW9_10_WPF
             TB_Token.Text = token;
             bot = Init.Initialization(ref users, token);
             bot.OnMessage += Bot_OnMessage;
+            bot.OnMessage += Bot_RefreshLV;
+            
             bot.StartReceiving();
+            
 
+        }
+
+        private void Bot_RefreshLV(object sender, MessageEventArgs e)
+        {
+            LV_Users.Items.Refresh();
         }
 
         private static string GetToken()
@@ -55,7 +64,7 @@ namespace HW9_10_WPF
         }
 
         [Obsolete]
-        private static void Bot_OnMessage(object sender, Telegram.Bot.Args.MessageEventArgs e)
+        private void Bot_OnMessage(object sender, Telegram.Bot.Args.MessageEventArgs e)
         {
             //инициализируем текущего пользователя
             User user = GetUser(e.Message.Chat.Id);
@@ -185,6 +194,8 @@ namespace HW9_10_WPF
 
             }
 
+            
+
         }
 
         /// <summary>
@@ -245,6 +256,7 @@ namespace HW9_10_WPF
 
                 tempUser = users.Single(i => i.UserId == id);
             }
+
             return tempUser;
         }
 
@@ -319,6 +331,7 @@ namespace HW9_10_WPF
                 this.Title = "Хранитель выключен";
                 bot.StopReceiving();
             }
+            LV_Users.Items.Refresh();
         }
     }
 }

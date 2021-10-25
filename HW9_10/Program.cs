@@ -11,6 +11,7 @@ using Telegram.Bot.Args;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Threading.Tasks;
 using Telegram.Bot.Types.InputFiles;
+using System.Collections.ObjectModel;
 
 /// <summary>
 /// 

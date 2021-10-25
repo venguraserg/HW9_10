@@ -21,6 +21,7 @@ namespace HW9_10
         {
             UserId = userId;
             RepoPath = Path.Combine(Directory.GetCurrentDirectory(), "Repository", this.UserId.ToString());
+            if (!Directory.Exists(RepoPath)) Directory.CreateDirectory(RepoPath);
             CurrentFolder = string.Empty;
             FolderList = GetFolderName();
         }
@@ -29,6 +30,8 @@ namespace HW9_10
         {
             UserId = userId;
             RepoPath = Path.Combine(Directory.GetCurrentDirectory(), "Repository", this.UserId.ToString());
+            if (!Directory.Exists(RepoPath)) Directory.CreateDirectory(RepoPath);
+
             CurrentFolder = currentFolder;
             FolderList = GetFolderName();
         }
